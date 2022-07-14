@@ -13,6 +13,7 @@ export default class Index extends React.Component {
       term: null,
       smtunnel,
       isScanning: false,
+      connected: false,
       deviceList: [],
     };
   }
@@ -53,18 +54,40 @@ export default class Index extends React.Component {
     });
   }
 
+  async disconnect() {
+    const { smtunnel } = this.state;
+    await smtunnel.stop();
+    this.setState({
+      isScanning: false,
+      connected: false,
+    });
+  }
+
+  async ssh(group, device) {
+    const { smtunnel, term } = this.state;
+    await smtunnel.ssh(group, device, term);
+    this.setState({
+      isScanning: false,
+      connected: true,
+    });
+  }
+
   render() {
     const {
-      fitAddon, smtunnel, term, deviceList, isScanning,
+      fitAddon, smtunnel, deviceList, isScanning, connected,
     } = this.state;
 
     return (
-      <div className="container flex flex-col space-y-4">
+      <div data-theme="dracula" className="container flex flex-col space-y-4 h-screen w-screen">
         <Head>
           <title>smtunnel web console</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <h1 className="text-5xl font-sans text-center">SSH via smtunnel</h1>
+
+        <div className="navbar bg-neutral text-neutral-content">
+          <a className="btn btn-ghost normal-case text-xl">SSH via smtunnel</a>
+        </div>
+
         <Resizable
           className="border-red-600"
           width={350}
@@ -74,7 +97,7 @@ export default class Index extends React.Component {
             margin: '1em',
           }}
         >
-          <div id="xterm-container" style={{ overflow: 'hidden', height: '100%', width: '100%' }} />
+          <div id="xterm-container" style={{ height: '100%', width: '100%' }} />
           <ResizeObserver
             onResize={() => {
               if (fitAddon) {
@@ -94,21 +117,21 @@ export default class Index extends React.Component {
             <input
               type="text"
               placeholder="ws://10.123.12.140:8083/mqtt"
-              className="input input-bordered w-96 self-center"
+              className="input input-bordered w-full"
+              disabled={connected || isScanning}
               onChange={this.handleMqttConnStrChange.bind(smtunnel)}
             />
           </div>
           <div className="btn-group">
             <button
               type="button"
-              className="btn btn-primary"
-              // disabled={smtunnel?.connected}
+              className="btn btn-primary w-1/2"
+              disabled={connected || isScanning}
               onClick={() => this.scan()}
             >
               Start / Scan
             </button>
-            <button type="button" className="btn btn-secondary" onClick={smtunnel.stop.bind(smtunnel)}>Disconnect</button>
-
+            <button type="button" className="btn btn-secondary w-1/2" onClick={() => this.disconnect()}>Disconnect</button>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -133,9 +156,10 @@ export default class Index extends React.Component {
                       <button
                         type="button"
                         className="btn btn-primary"
-                      // disabled={!smtunnel?.connected}
+                        disabled={connected || row.status !== 'connected'}
                         onClick={async () => (
-                          smtunnel.ssh.apply(smtunnel, [row.group, row.device, term]))}
+                          this.ssh(row.group, row.device)
+                        )}
                       >
                         SSH
                       </button>
