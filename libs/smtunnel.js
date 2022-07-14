@@ -72,50 +72,50 @@ class SMtunnel {
   async scan() {
     console.log('scan started.');
     const scanClient = mqtt.connect(this.mqttConnStr);
-    scanClient.on('connect', async () => {
-      console.log('Broker connected.');
-      await scanClient.subscribe('stunnelv1.0/+/+/state', (err) => {
-        if (err) {
-          console.error(err);
+    return new Promise((resolve, reject) => {
+      scanClient.on('connect', async () => {
+        console.log('Broker connected.');
+        try {
+          await scanClient.subscribe('stunnelv1.0/+/+/state');
+        } catch (error) {
+          reject(error);
+          scanClient.end();
+          console.log('scan ended.');
+        }
+        console.log('topic [stunnelv1.0/+/+/state] subscribed.');
+        setTimeout(() => {
+          resolve(this.groupDeviceMap);
+          scanClient.end();
+        }, 3000);
+      });
+
+      scanClient.on('message', async (topic, message) => {
+        let topicParsed;
+        for (let i = 0; i < this.regexList.length && !topicParsed; i += 1) {
+          topicParsed = this.regexList[i].exec(topic);
+        }
+
+        if (!topicParsed) {
+          console.log(`Can't parse ${topic}, skip`);
           return;
         }
 
-        console.log('topic [stunnelv1.0/+/+/state] subscribed.');
+        const {
+          group,
+          device,
+        } = topicParsed.groups;
+
+        console.log(`Found: ${group}/${device}`);
+        console.log(message.toString());
+
+        // Update groupDeviceMap
+        const deviceDetail = JSON.parse(message);
+        this.groupDeviceMap[group] = this.groupDeviceMap[group] || {};
+        this.groupDeviceMap[group][device] = deviceDetail;
+        deviceDetail.group = group;
+        deviceDetail.device = device;
       });
     });
-
-    scanClient.on('message', async (topic, message) => {
-      let topicParsed;
-      for (let i = 0; i < this.regexList.length && !topicParsed; i += 1) {
-        topicParsed = this.regexList[i].exec(topic);
-      }
-
-      if (!topicParsed) {
-        console.log(`Can't parse ${topic}, skip`);
-        return;
-      }
-
-      const {
-        group,
-        device,
-      } = topicParsed.groups;
-
-      console.log(`Found: ${group}/${device}`);
-      console.log(message.toString());
-
-      // Update groupDeviceMap
-      const deviceDetail = JSON.parse(message);
-      this.groupDeviceMap[group] = this.groupDeviceMap[group] || {};
-      this.groupDeviceMap[group][device] = deviceDetail;
-      deviceDetail.group = group;
-      deviceDetail.device = device;
-    });
-
-    await new Promise((r) => setTimeout(r, 3000));
-    scanClient.end();
-
-    console.log('scan ended.');
-    return this.groupDeviceMap;
   }
 
   async ssh(group, device, term) {

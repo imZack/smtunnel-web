@@ -90,7 +90,6 @@ export default class Index extends React.Component {
               type="text"
               placeholder="ws://10.123.12.140:8083/mqtt"
               className="input input-bordered w-full max-w-xs"
-              value={smtunnel.mqttConnStr}
               onChange={this.handleMqttConnStrChange.bind(smtunnel)}
             />
 
