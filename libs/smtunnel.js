@@ -64,7 +64,9 @@ class SMtunnel {
   async destroySession(uuid) {
     console.log('destroySession', uuid);
     const session = this.sessionMap[uuid];
+    await session.mqttClient.publish(`stunnelv1.0/${session.group}/${session.device}/${uuid}/logout`, null);
     await session.mqttClient.end();
+
     session.term.reset();
     delete this.sessionMap[uuid];
   }
