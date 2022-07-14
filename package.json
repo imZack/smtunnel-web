@@ -3,11 +3,34 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "export": "next build && next export"
+  },
+  "output": {
+    "globalObject": "this"
   },
   "dependencies": {
+    "async-mqtt": "^2.6.2",
+    "bluebird": "^3.7.2",
+    "daisyui": "^2.19.0",
     "next": "latest",
+    "re-resizable": "^6.9.9",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "react-resize-observer": "^1.1.1",
+    "xterm": "^4.19.0",
+    "xterm-addon-fit": "^0.5.0",
+    "xterm-for-react": "github:robert-harbison/xterm-for-react"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.7",
+    "eslint": "^8.19.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.6.0",
+    "eslint-plugin-react": "^7.30.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "postcss": "^8.4.14",
+    "tailwindcss": "^3.1.6"
   }
 }
