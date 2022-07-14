@@ -1,3 +1,3 @@
 module.exports = {
-  basePath: '/smtunnel-web',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/smtunnel-web' : '',
 };
