@@ -85,7 +85,7 @@ export default class Index extends React.Component {
         </Head>
 
         <div className="navbar bg-neutral text-neutral-content">
-          <a className="btn btn-ghost normal-case text-xl">SSH via smtunnel</a>
+          <a className="btn btn-ghost normal-case text-xl" href="/">SSH via smtunnel</a>
         </div>
 
         <Resizable
