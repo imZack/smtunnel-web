@@ -10,7 +10,7 @@ class SMtunnel {
   constructor(mqttConnStr) {
     this.sessionMap = {};
     this.groupDeviceMap = {};
-    this.mqttConnStr = mqttConnStr || 'ws://10.123.12.140:8083/mqtt';
+    this.mqttConnStr = mqttConnStr || 'wss://10.123.12.140:8084/mqtt';
     this.connceted = false;
   }
 
