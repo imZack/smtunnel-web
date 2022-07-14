@@ -12,6 +12,7 @@ export default class Index extends React.Component {
     this.state = {
       term: null,
       smtunnel,
+      isScanning: false,
       deviceList: [],
     };
   }
@@ -44,15 +45,17 @@ export default class Index extends React.Component {
 
   async scan() {
     const { smtunnel } = this.state;
+    this.setState({ isScanning: true });
     await smtunnel.scan();
     this.setState({
       deviceList: smtunnel.getGroupDeviceList(),
+      isScanning: false,
     });
   }
 
   render() {
     const {
-      fitAddon, smtunnel, term, deviceList,
+      fitAddon, smtunnel, term, deviceList, isScanning,
     } = this.state;
 
     return (
@@ -61,10 +64,11 @@ export default class Index extends React.Component {
           <title>smtunnel web console</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <h1 className="text-2xl">SSH Terminal</h1>
+        <h1 className="text-5xl font-sans text-center">SSH via smtunnel</h1>
         <Resizable
+          className="border-red-600"
           width={350}
-          height={350}
+          height={450}
           style={{
             padding: '0.4em',
             margin: '1em',
@@ -84,17 +88,17 @@ export default class Index extends React.Component {
             }}
           />
         </Resizable>
+        <div className="divider">Settings</div>
         <div className="grid grid-cols-2">
           <div>
             <input
               type="text"
               placeholder="ws://10.123.12.140:8083/mqtt"
-              className="input input-bordered w-full max-w-xs"
+              className="input input-bordered w-96 self-center"
               onChange={this.handleMqttConnStrChange.bind(smtunnel)}
             />
-
           </div>
-          <div className="content-evenly">
+          <div className="btn-group">
             <button
               type="button"
               className="btn btn-primary"
@@ -103,7 +107,7 @@ export default class Index extends React.Component {
             >
               Start / Scan
             </button>
-            <button type="button" className="btn btn-primary" onClick={smtunnel.stop.bind(smtunnel)}>Disconnect</button>
+            <button type="button" className="btn btn-secondary" onClick={smtunnel.stop.bind(smtunnel)}>Disconnect</button>
 
           </div>
         </div>
@@ -143,6 +147,7 @@ export default class Index extends React.Component {
             </tbody>
           </table>
         </div>
+        { isScanning ? <progress className="progress progress-info" /> : '' }
       </div>
     );
   }
